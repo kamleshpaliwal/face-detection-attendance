@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Attendance - Face Recognition</title>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #1a202c;
+            color: white;
+            padding: 20px;
+        }
+
+        .container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        #video-container {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(66, 153, 225, 0.5);
+        }
+
+        video {
+            width: 100%;
+            display: block;
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        #result-card {
+            margin-top: 20px;
+            padding: 20px;
+            background: white;
+            color: #2d3748;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        #result-card.show {
+            opacity: 1;
+        }
+
+        .student-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2b6cb0;
+        }
+
+        .student-details {
+            margin: 10px 0;
+            font-size: 1rem;
+            color: #4a5568;
+        }
+
+        .score {
+            font-size: 0.8rem;
+            color: #718096;
+        }
+
+        .status-dot {
+            height: 10px;
+            width: 10px;
+            background-color: #bbb;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+        }
+
+        .status-active {
+            background-color: #48bb78;
+            box-shadow: 0 0 8px #48bb78;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Face Attendance System</h1>
+        <div style="margin-bottom: 10px;">
+            <span id="status-dot" class="status-dot"></span> <span id="status-text">Initializing...</span>
+        </div>
+
+        <div id="video-container">
+            <video id="video" width="720" height="560" autoplay muted></video>
+        </div>
+
+        <div id="result-card">
+            <div id="student-name" class="student-name"></div>
+            <div id="student-details" class="student-details"></div>
+            <div id="timestamp" class="student-details"></div>
+            <div id="confidence" class="score"></div>
+        </div>
+    </div>
+
+    <script>
+        const video = document.getElementById('video');
+        const statusText = document.getElementById('status-text');
+        const statusDot = document.getElementById('status-dot');
+        const resultCard = document.getElementById('result-card');
+        let isProcessing = false;
+
+        async function init() {
+            try {
+                video.srcObject = await navigator.mediaDevices.getUserMedia({ video: true });
+                await video.play();
+                statusText.innerText = 'System Active';
+                statusDot.classList.add('status-active');
+                setInterval(processFrame, 2000);
+            } catch (err) {
+                statusText.innerText = `Camera Error: ${err.message}`;
+                statusDot.style.backgroundColor = 'red';
+            }
+        }
+
+        async function processFrame() {
+            if (isProcessing || !video.videoWidth) return;
+            isProcessing = true;
+            statusText.innerText = 'Detecting and matching...';
+            try {
+                const canvas = document.createElement('canvas');
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                canvas.getContext('2d').drawImage(video, 0, 0);
+                const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.85));
+                const form = new FormData();
+                form.append('image', blob, 'attendance.jpg');
+                const response = await fetch('/attendance/mark', { method: 'POST', body: form });
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.detail || 'Server error');
+                if (result.success) showResult(result.data, result.message);
+                else showError(result.message);
+            } catch (e) {
+                showError(e.message || 'Network/server error');
+            } finally {
+                setTimeout(() => { isProcessing = false; statusText.innerText = 'System Active'; }, 1800);
+            }
+        }
+
+        function showError(message) {
+            document.getElementById('student-name').innerText = 'Not Recognized';
+            document.getElementById('student-details').innerText = '';
+            document.getElementById('timestamp').innerText = '';
+            document.getElementById('confidence').innerText = message;
+            resultCard.style.borderLeft = '5px solid #e53e3e';
+            resultCard.classList.add('show');
+            setTimeout(() => { resultCard.classList.remove('show'); resultCard.style.borderLeft = 'none'; }, 2000);
+        }
+
+        function showResult(data, message) {
+            const student = data.student;
+            const attendance = data.attendance;
+            document.getElementById('student-name').innerText = `${student.firstName} ${student.lastName}`;
+            document.getElementById('student-details').innerText = `${student.studentCode} | ${student.className || ''}`;
+            document.getElementById('timestamp').innerText = `Time: ${attendance.time}`;
+            document.getElementById('confidence').innerText = message;
+            resultCard.classList.add('show');
+            setTimeout(() => resultCard.classList.remove('show'), 5000);
+        }
+
+        init();
+    </script>
+</body>
+
+</html>

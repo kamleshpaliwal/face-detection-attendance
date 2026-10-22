@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Registration - Face Attendance</title>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #f0f2f5;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #1a202c;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #4a5568;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #3182ce;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background: #2b6cb0;
+        }
+
+        #video-container {
+            position: relative;
+            width: 100%;
+            height: 350px;
+            background: #000;
+            margin-top: 20px;
+            border-radius: 8px;
+            overflow: hidden;
+            display: none;
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        #status {
+            margin-top: 15px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .error {
+            color: #e53e3e;
+        }
+
+        .success {
+            color: #38a169;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>New Student Registration</h1>
+        <div id="student-form">
+            <div class="form-group">
+                <label>Student Code</label>
+                <input type="text" id="studentCode" placeholder="e.g., STU001">
+            </div>
+            <div class="form-group">
+                <label>First Name</label>
+                <input type="text" id="firstName" placeholder="John">
+            </div>
+            <div class="form-group">
+                <label>Last Name</label>
+                <input type="text" id="lastName" placeholder="Doe">
+            </div>
+            <div class="form-group">
+                <label>Date of Birth</label>
+                <input type="date" id="dob">
+            </div>
+            <div class="form-group">
+                <label>Class Name</label>
+                <input type="text" id="className" placeholder="Class 10">
+            </div>
+
+            <button id="nextBtn" onclick="startFaceCapture()">Next: Capture Face</button>
+        </div>
+
+        <div id="video-container">
+            <video id="video" autoplay muted></video>
+        </div>
+
+        <button id="captureBtn" style="display:none;" onclick="captureAndRegister()">Capture & Register</button>
+        <div id="status"></div>
+    </div>
+
+    <script>
+        let studentId = null;
+        const video = document.getElementById('video');
+        const statusDiv = document.getElementById('status');
+        const API_URL = '';
+
+        async function startFaceCapture() {
+            const inputs = ['studentCode', 'firstName', 'lastName'];
+            for (const id of inputs) {
+                if (!document.getElementById(id).value.trim()) {
+                    alert('Please fill all required fields');
+                    return;
+                }
+            }
+            try {
+                const response = await fetch(`${API_URL}/students`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        studentCode: document.getElementById('studentCode').value.trim(),
+                        firstName: document.getElementById('firstName').value.trim(),
+                        lastName: document.getElementById('lastName').value.trim(),
+                        dob: document.getElementById('dob').value || null,
+                        className: document.getElementById('className').value.trim() || null,
+                    })
+                });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.detail || 'Could not create student');
+                studentId = data.id;
+                document.getElementById('student-form').style.display = 'none';
+                document.getElementById('video-container').style.display = 'block';
+                document.getElementById('captureBtn').style.display = 'block';
+                await startVideo();
+            } catch (e) {
+                statusDiv.innerHTML = `<span class="error">Error: ${e.message}</span>`;
+            }
+        }
+
+        async function startVideo() {
+            try {
+                video.srcObject = await navigator.mediaDevices.getUserMedia({ video: true });
+                await video.play();
+                statusDiv.textContent = 'Camera ready. Center one face, then capture.';
+            } catch (err) {
+                statusDiv.textContent = `Camera error: ${err.message}`;
+            }
+        }
+
+        async function captureAndRegister() {
+            if (!studentId || !video.videoWidth) return;
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+            const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.9));
+            if (!blob) { statusDiv.textContent = 'Could not capture image'; return; }
+            const form = new FormData();
+            form.append('image', blob, 'capture.jpg');
+            statusDiv.textContent = 'Detecting and registering face...';
+            try {
+                const response = await fetch(`${API_URL}/students/${studentId}/register-face`, { method: 'POST', body: form });
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.detail || 'Face registration failed');
+                statusDiv.innerHTML = '<span class="success">Face registered successfully.</span>';
+            } catch (e) {
+                statusDiv.innerHTML = `<span class="error">Error: ${e.message}</span>`;
+            }
+        }
+    </script>
+</body>
+
+</html>

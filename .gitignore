@@ -1,0 +1,31 @@
+# Local secrets and environment overrides
+.env
+.env.*
+!.env.example
+server/.env
+server/.env.*
+!server/.env.example
+
+# Python environments, bytecode, and test/build output
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+build/
+dist/
+*.egg-info/
+
+# Downloaded face model/cache and local database/vector service data
+.deepface/
+deepface_cache/
+volumes/
+
+# Logs and editor/OS files
+*.log
+.DS_Store
+.idea/
+.vscode/
