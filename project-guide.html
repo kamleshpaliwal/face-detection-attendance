@@ -1,0 +1,233 @@
+<title>Face Attendance Guide</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: sticky section nav on top, single reading column, step cards and roadmap tables */
+:root{
+  --bg:#f6f8f9; --surface:#ffffff; --fg:#14222b; --muted:#587080; --line:#dbe3e8;
+  --accent:#0b7a75; --accent-soft:#dff2f0; --p0:#b3261e; --p0-soft:#fbe4e2; --p1:#a15c00; --p1-soft:#fcefd9; --p2:#2a5fa8; --p2-soft:#e2ecf9;
+  --code:#eef2f4;
+  --head:"Space Grotesk",system-ui,sans-serif; --body:"Inter",system-ui,sans-serif; --mono:"JetBrains Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0e171c; --surface:#16232a; --fg:#e6eef1; --muted:#93a9b4; --line:#27383f;
+  --accent:#4cc9c0; --accent-soft:#12383a; --p0:#ff8f87; --p0-soft:#3d1c1a; --p1:#f0b45a; --p1-soft:#3a2b10; --p2:#8db6f0; --p2-soft:#172a42; --code:#1c2c34; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e171c; --surface:#16232a; --fg:#e6eef1; --muted:#93a9b4; --line:#27383f;
+  --accent:#4cc9c0; --accent-soft:#12383a; --p0:#ff8f87; --p0-soft:#3d1c1a; --p1:#f0b45a; --p1-soft:#3a2b10; --p2:#8db6f0; --p2-soft:#172a42; --code:#1c2c34; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:15px/1.6 var(--body);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:980px;margin:0 auto;padding-block:32px 64px}
+h1,h2,h3{font-family:var(--head);text-wrap:balance;line-height:1.2;margin:0}
+h1{font-size:clamp(28px,5vw,42px);letter-spacing:-.02em}
+h2{font-size:26px;margin-top:56px;padding-top:8px;scroll-margin-top:64px}
+h3{font-size:17px}
+p{margin:.5em 0}
+code{font:13px var(--mono);background:var(--code);padding:1px 6px;border-radius:4px}
+.lead{color:var(--muted);max-width:65ch;font-size:16px}
+nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line);margin:0 calc(-1*max(16px,env(safe-area-inset-left,0px)));padding:10px max(16px,env(safe-area-inset-left,0px));display:flex;gap:6px;overflow-x:auto}
+nav a{white-space:nowrap;color:var(--muted);text-decoration:none;font-weight:500;font-size:13px;padding:6px 12px;border-radius:999px}
+nav a:hover,nav a:focus-visible{background:var(--accent-soft);color:var(--accent);outline:none}
+.stack{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:20px}
+.stack div{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 14px;min-width:0}
+.stack b{display:block;font-family:var(--head);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
+.stack span{font-size:14px}
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:20px 0;font-family:var(--mono);font-size:13px}
+.flow span{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:6px 10px}
+.flow i{color:var(--muted);font-style:normal}
+.step{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:20px 22px;margin-top:16px}
+.step header{display:flex;gap:12px;align-items:baseline;flex-wrap:wrap}
+.tag{font:500 12px var(--mono);color:var(--accent);background:var(--accent-soft);border-radius:4px;padding:2px 8px}
+.step dl{display:grid;grid-template-columns:70px 1fr;gap:6px 14px;margin:12px 0 0}
+.step dt{font:600 11px var(--head);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding-top:4px}
+.step dd{margin:0;min-width:0}
+.step ul,.step ol{margin:.3em 0;padding-left:1.2em}
+.step li{margin:.2em 0}
+@media(max-width:560px){.step dl{grid-template-columns:1fr}.step dt{padding-top:8px}}
+.scroll{overflow-x:auto;margin-top:12px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:14px}
+th,td{text-align:left;padding:10px 14px;vertical-align:top;border-bottom:1px solid var(--line)}
+th{font:600 11px var(--head);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+tr:last-child td{border-bottom:0}
+td:first-child{white-space:nowrap;font-family:var(--mono);font-size:13px}
+.pill{display:inline-block;font:600 11px var(--head);letter-spacing:.06em;border-radius:999px;padding:2px 10px;margin-left:8px;vertical-align:middle}
+.p0{color:var(--p0);background:var(--p0-soft)}.p1{color:var(--p1);background:var(--p1-soft)}.p2{color:var(--p2);background:var(--p2-soft)}
+.note{border-left:3px solid var(--p1);background:var(--p1-soft);padding:10px 14px;border-radius:0 8px 8px 0;margin-top:16px}
+.plan{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin-top:12px}
+.plan div{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px}
+.plan b{font-family:var(--head);color:var(--accent)}
+.check{list-style:none;padding:0;margin:12px 0 0;display:grid;gap:8px}
+.check li{display:flex;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px 14px}
+.check li:before{content:"";flex:none;width:16px;height:16px;margin-top:4px;border:2px solid var(--accent);border-radius:4px}
+.endpoints td:first-child{color:var(--accent)}
+</style>
+
+<div class="wrap">
+<nav>
+  <a href="#overview">Overview</a><a href="#built">What was built</a><a href="#api">API</a><a href="#roadmap">Production plan</a><a href="#order">4-week order</a><a href="#done">Ready checklist</a>
+</nav>
+
+<section id="overview" style="padding-top:32px">
+  <h1>Face Attendance Enterprise</h1>
+  <p class="lead">A school attendance system. A student registers once with a face photo, and later a camera scan marks them present. This page covers what was built, why, and how, then a plan to make it production ready.</p>
+  <div class="flow"><span>Browser camera</span><i>→</i><span>FastAPI</span><i>→</i><span>DeepFace Facenet512</span><i>→</i><span>Milvus search</span><i>→</i><span>MySQL record</span></div>
+  <div class="stack">
+    <div><b>Frontend</b><span>Static HTML: register.html, attendance.html</span></div>
+    <div><b>API</b><span>FastAPI + Uvicorn, Python 3.11</span></div>
+    <div><b>Face AI</b><span>DeepFace, Facenet512, OpenCV detector, 512-dim vectors</span></div>
+    <div><b>Relational DB</b><span>MySQL 8 via SQLAlchemy</span></div>
+    <div><b>Vector DB</b><span>Milvus 2.4, HNSW index, cosine metric</span></div>
+    <div><b>Admin UI</b><span>Attu, the Milvus browser, on port 8001</span></div>
+  </div>
+  <div class="note">Git holds only two commits, so these steps are reconstructed from the code in logical build order, not from commit history. <code>milvus/</code> and <code>server/.dockerignore</code> are still uncommitted.</div>
+</section>
+
+<section id="built">
+  <h2>What was built, step by step</h2>
+
+  <div class="step"><header><span class="tag">Step 0</span><h3>Problem and design decisions</h3></header><dl>
+    <dt>What</dt><dd>Register a face once, then mark attendance automatically from a camera scan.</dd>
+    <dt>Why</dt><dd><ul><li>Python/DeepFace replaces browser-side face-api.js (128-dim). It is more accurate, and the client can't tamper with embeddings.</li><li>MySQL suits relational data and uniqueness rules.</li><li>Milvus does fast nearest-neighbour search without scanning every row.</li><li>Docker Compose starts the whole stack with one command.</li></ul></dd></dl></div>
+
+  <div class="step"><header><span class="tag">Step 1</span><h3>Configuration</h3><code>config.py</code></header><dl>
+    <dt>What</dt><dd>A <code>Settings</code> class (pydantic-settings) for DB credentials, Milvus address, model, detector, dimension (512), threshold (0.60), timezone, 8 MB image cap, CORS origins and client directory.</dd>
+    <dt>Why</dt><dd>No secrets or environment values in code. The same image runs locally and in Docker.</dd>
+    <dt>How</dt><dd>Loads from env vars or <code>server/.env</code>. The password is URL-encoded in the DB URL. <code>.gitignore</code> keeps real <code>.env</code> files out and only <code>.env.example</code> in.</dd></dl></div>
+
+  <div class="step"><header><span class="tag">Step 2</span><h3>Relational layer</h3><code>database.py · models.py · schemas.py</code></header><dl>
+    <dt>What</dt><dd><code>Student</code> (unique studentCode, names, dob, class, section) and <code>Attendance</code> (studentId, date, time, confidence), with Pydantic request and response models.</dd>
+    <dt>Why</dt><dd>A unique constraint on (studentId, date) enforces one attendance row per student per day, even under simultaneous scans. <code>pool_pre_ping</code> and <code>pool_recycle</code> avoid stale-connection errors.</dd>
+    <dt>How</dt><dd><code>create_all</code> builds missing tables at startup.</dd></dl></div>
+
+  <div class="step"><header><span class="tag">Step 3</span><h3>Face embedding pipeline</h3><code>faces.py</code></header><dl>
+    <dt>What</dt><dd>One function turns an uploaded image into a 512-float vector.</dd>
+    <dt>Why</dt><dd>Registration and attendance must produce comparable vectors, and bad input must never reach the model.</dd>
+    <dt>How</dt><dd><ol><li>Allow only JPEG, PNG or WebP (else 415).</li><li>Read at most 8 MB (else 413).</li><li>Decode with OpenCV (else 400).</li><li>Run DeepFace with Facenet512, the opencv detector, enforced detection and alignment.</li><li>Require exactly one face.</li><li>Check the vector has 512 finite values.</li></ol></dd></dl></div>
+
+  <div class="step"><header><span class="tag">Step 4</span><h3>Vector layer</h3><code>vectors.py</code></header><dl>
+    <dt>What</dt><dd>A Milvus wrapper. The collection <code>student_faces_facenet512</code> has primary key <code>student_id</code> and a 512-dim embedding with an HNSW index (M=16, efConstruction=200) and the cosine metric.</dd>
+    <dt>Why</dt><dd>Keeps similarity search out of MySQL and scales with student count. The model name in the collection name stops old 128-dim vectors being mixed in.</dd>
+    <dt>How</dt><dd><code>put()</code> upserts, so re-registering replaces the vector. <code>nearest()</code> returns the top-1 student and score.</dd></dl></div>
+
+  <div class="step"><header><span class="tag">Step 5</span><h3>API</h3><code>main.py</code></header><dl>
+    <dt>What</dt><dd>The endpoints in the table below, plus CORS and static hosting of the client.</dd>
+    <dt>Why</dt><dd><ul><li>Startup retries Milvus up to 12 times, because Milvus is slow to start.</li><li>A nearest neighbour always exists, even for strangers, so the score must pass the threshold.</li><li>The attendance check plus <code>IntegrityError</code> handling makes marking idempotent.</li><li>"Today" uses the configured timezone, matching the school's day.</li></ul></dd></dl></div>
+
+  <div class="step"><header><span class="tag">Step 6</span><h3>Frontend</h3><code>register.html · attendance.html</code></header><dl>
+    <dt>What</dt><dd>A registration form with camera capture, and a scan page that sends a frame every 2 seconds.</dd>
+    <dt>Why</dt><dd>No build step. The browser only sends images, so all recognition logic stays on the server.</dd>
+    <dt>How</dt><dd><code>getUserMedia</code> gives the stream. A canvas turns a frame into a JPEG blob, uploaded as multipart field <code>image</code> on the same origin.</dd></dl></div>
+
+  <div class="step"><header><span class="tag">Step 7</span><h3>Containers</h3><code>Dockerfile · docker-compose.yml</code></header><dl>
+    <dt>What</dt><dd>Four services: <code>mysql</code>, <code>milvus</code>, <code>attu</code> and <code>app</code>. The Dockerfile uses python:3.11-slim with the OpenCV system libraries.</dd>
+    <dt>Why</dt><dd>Milvus runs standalone with embedded etcd and local storage, so there are 3 infrastructure containers instead of 5. Healthchecks make startup order reliable, and a cache volume keeps model weights between restarts.</dd>
+    <dt>How</dt><dd><code>app</code> waits for healthy MySQL and Milvus. Compose fails fast if <code>MYSQL_ROOT_PASSWORD</code> is unset.</dd></dl></div>
+
+  <div class="step"><header><span class="tag">Step 8</span><h3>Latest uncommitted changes</h3></header><dl>
+    <dt>What</dt><dd>The modified <code>docker-compose.yml</code> (embedded etcd), plus the new <code>milvus/embedEtcd.yaml</code> and <code>server/.dockerignore</code>.</dd>
+    <dt>Action</dt><dd>Commit them. A fresh clone can't start Milvus without them.</dd></dl></div>
+</section>
+
+<section id="api">
+  <h2>API endpoints</h2>
+  <div class="scroll"><table class="endpoints">
+    <tr><th>Endpoint</th><th>Purpose</th></tr>
+    <tr><td>GET /api/health</td><td>Liveness check, reports model and dimension</td></tr>
+    <tr><td>POST /students</td><td>Create a student. A duplicate code returns 409.</td></tr>
+    <tr><td>GET /students, /students/{id}</td><td>List students or fetch one (404 if missing)</td></tr>
+    <tr><td>POST /students/{id}/register-face</td><td>Embed the uploaded face and upsert into Milvus</td></tr>
+    <tr><td>POST /attendance/mark</td><td>Embed, search, apply threshold, record one row per student per day</td></tr>
+  </table></div>
+</section>
+
+<section id="roadmap">
+  <h2>Production readiness plan</h2>
+  <p class="lead">Priority: <span class="pill p0">P0</span> blocker before real users, <span class="pill p1">P1</span> needed soon after, <span class="pill p2">P2</span> improvement.</p>
+
+  <h3 style="margin-top:28px">Phase 1: Security and privacy <span class="pill p0">P0</span></h3>
+  <div class="scroll"><table>
+    <tr><th>#</th><th>Task</th><th>Why and how</th></tr>
+    <tr><td>1.1</td><td>Authentication and roles</td><td>Anyone can register students or mark attendance today. Use JWT or OAuth2 with admin, teacher and kiosk roles. A kiosk gets a scoped key for <code>/attendance/mark</code> only.</td></tr>
+    <tr><td>1.2</td><td>HTTPS</td><td>Camera access needs HTTPS outside localhost. Put Caddy, Nginx or Traefik in front and don't publish port 8000.</td></tr>
+    <tr><td>1.3</td><td>Close infrastructure ports</td><td>3306, 19530, 9091 and Attu are exposed. Remove the <code>ports</code> entries and protect Attu.</td></tr>
+    <tr><td>1.4</td><td>Dedicated DB user</td><td>The app connects as root. Create a least-privilege user.</td></tr>
+    <tr><td>1.5</td><td>Secrets management</td><td>Docker secrets, Vault or a cloud secret manager instead of <code>.env</code> files.</td></tr>
+    <tr><td>1.6</td><td>Anti-spoofing</td><td>A printed photo can mark someone present. Use DeepFace <code>anti_spoofing</code> or blink and head-turn challenges, and test with real attempts.</td></tr>
+    <tr><td>1.7</td><td>Biometric compliance</td><td>Consent capture, access audit log, retention policy, and a delete endpoint that clears MySQL and Milvus together. Check local law (for example DPDP, GDPR).</td></tr>
+    <tr><td>1.8</td><td>Rate limiting</td><td>Each scan is expensive. Use <code>slowapi</code> or proxy-level limits.</td></tr>
+  </table></div>
+
+  <h3 style="margin-top:28px">Phase 2: Correctness and accuracy <span class="pill p0">P0</span><span class="pill p1">P1</span></h3>
+  <div class="scroll"><table>
+    <tr><th>#</th><th>Task</th><th>Why and how</th></tr>
+    <tr><td>2.1</td><td>Calibrate the threshold</td><td>0.60 is a demo value. Build a labeled validation set, plot false accept and false reject rates, and choose to fit the school's risk tolerance.</td></tr>
+    <tr><td>2.2</td><td>Stronger detector</td><td>The opencv (Haar) detector is weak with angles and light. Benchmark retinaface, mtcnn and yolov8.</td></tr>
+    <tr><td>2.3</td><td>Several embeddings per student</td><td>One photo is fragile. Store 3 to 5 and match on the best score. This needs an auto ID primary key in Milvus.</td></tr>
+    <tr><td>2.4</td><td>Ambiguity margin</td><td>Take the top 2 matches and reject the scan if the gap is too small.</td></tr>
+    <tr><td>2.5</td><td>Consistent state</td><td>MySQL and Milvus are written separately. Add a reconciliation job and ordered deletes.</td></tr>
+    <tr><td>2.6</td><td>Bug and cleanup fixes</td><td>Replace deprecated <code>datetime.utcnow</code>, create the Milvus client in <code>lifespan</code> instead of at import, and adopt Alembic instead of <code>create_all</code>.</td></tr>
+    <tr><td>2.7</td><td>Consistent status codes</td><td><code>/attendance/mark</code> returns 200 with <code>success:false</code> for "not recognized". Use proper codes and an error schema.</td></tr>
+  </table></div>
+
+  <h3 style="margin-top:28px">Phase 3: Features <span class="pill p1">P1</span></h3>
+  <ul>
+    <li>Attendance read APIs by date, class and student, with daily and monthly summaries and CSV or Excel export.</li>
+    <li>Student update, delete and soft-delete, face re-enrollment and bulk CSV import.</li>
+    <li>Manual teacher override with a reason and audit trail.</li>
+    <li>Late and absent logic using school hours and per-class schedules.</li>
+    <li>Admin dashboard with login, and pagination and search on <code>/students</code>.</li>
+    <li>Parent notifications (SMS, email or WhatsApp) for absences.</li>
+  </ul>
+
+  <h3 style="margin-top:28px">Phase 4: Performance and scalability <span class="pill p1">P1</span></h3>
+  <ul>
+    <li>Warm up the model at startup. The first request currently takes minutes.</li>
+    <li>Run DeepFace in a thread or process pool. It currently blocks the async event loop.</li>
+    <li>Run multiple workers, and consider GPU inference if volume needs it.</li>
+    <li>On the client: skip frames with no face, throttle polling, and resize images before upload.</li>
+    <li>Use a real Milvus deployment and backed-up or managed MySQL. Embedded etcd and local storage suit development only.</li>
+  </ul>
+
+  <h3 style="margin-top:28px">Phase 5: Reliability and operations <span class="pill p1">P1</span></h3>
+  <ul>
+    <li><b>Backups:</b> scheduled MySQL dumps and Milvus snapshots, with a tested restore.</li>
+    <li><b>Logging:</b> structured JSON logs with request IDs. Never log images or embeddings.</li>
+    <li><b>Monitoring:</b> Prometheus and Grafana for latency, match rate and errors. Extend <code>/api/health</code> to check MySQL and Milvus.</li>
+    <li><b>Containers:</b> non-root user, pinned base images, Trivy scans, resource limits and restart policies.</li>
+  </ul>
+
+  <h3 style="margin-top:28px">Phase 6: Quality and delivery <span class="pill p1">P1</span><span class="pill p2">P2</span></h3>
+  <ul>
+    <li><b>Tests:</b> pytest unit tests, API tests with DeepFace and Milvus mocked, Compose integration tests, and a regression set of face images.</li>
+    <li><b>CI/CD:</b> GitHub Actions running ruff, mypy, tests, image build and scan, then deploy.</li>
+    <li><b>Migrations and config:</b> versioned Alembic migrations and separate dev, staging and prod configs.</li>
+    <li><b>Dependencies:</b> a lock file. <code>deepface&gt;=0.0.93</code> has no upper bound.</li>
+    <li><b>Docs:</b> OpenAPI examples, a runbook and deployment notes.</li>
+  </ul>
+</section>
+
+<section id="order">
+  <h2>Suggested 4-week order</h2>
+  <div class="plan">
+    <div><b>Week 1</b><p>Commit pending files. Tasks 1.1 to 1.4, 2.6 and basic tests.</p></div>
+    <div><b>Week 2</b><p>1.2, 1.6, 1.8 and 2.1 to 2.4, with the accuracy validation set.</p></div>
+    <div><b>Week 3</b><p>Phase 3 reports and admin features. Phase 4 performance.</p></div>
+    <div><b>Week 4</b><p>Phase 5 operations and CI/CD. Pilot with one class before wider rollout.</p></div>
+  </div>
+</section>
+
+<section id="done">
+  <h2>Definition of production ready</h2>
+  <ul class="check">
+    <li>All endpoints authenticated, and traffic over HTTPS only</li>
+    <li>No database or vector ports exposed publicly</li>
+    <li>Threshold calibrated on real data, with measured false accept and false reject rates</li>
+    <li>Anti-spoofing enabled</li>
+    <li>Consent record and a deletion path for biometric data</li>
+    <li>Backups run and the restore has been tested</li>
+    <li>Monitoring and alerts in place</li>
+    <li>Automated tests and a passing CI pipeline</li>
+    <li>Pilot completed with real users</li>
+  </ul>
+</section>
+</div>
